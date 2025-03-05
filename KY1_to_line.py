@@ -26,20 +26,27 @@ def lambda_handler(event, context):
         yosoku_date = row["入庫予測日"]
         if now_date == yosoku_date[0:10]:
             if row["単位"] == "やること":
-                line_mess = "\r\nもうすぐ " + row["名称"] + "のタイミングです。"
+                line_mess = "もうすぐ " + row["名称"] + "のタイミングです。"
             else:
-                line_mess = "\r\nそろそろ " + row["名称"] + "を買うタイミングです。"
+                line_mess = "そろそろ " + row["名称"] + "を買うタイミングです。"
             sendNoticeToLine(line_mess)
             # print(line_mess)
 
 # LINEに出力 1
 def sendNoticeToLine(line_mess):
-    _url = 'https://notify-api.line.me/api/notify'
+    _url = 'https://api.line.me/v2/bot/message/push'
     _data = {
-      "message": line_mess
+      "to": _env["LINE_USER_ID"],
+      "messages": [
+          {
+              "type": "text",
+              "text": line_mess
+          }
+      ]
     }
     _header = {
-      "Authorization": "Bearer " + _env["LINE_ACCESS_TOKEN"]
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + _env["LINE_API_ACCESS_TOKEN"]
     }
 
     # print(_data)
@@ -47,7 +54,7 @@ def sendNoticeToLine(line_mess):
 
 # LINEに出力 2
 def sendRequest(_url, _data, _header):
-    _data = urllib.parse.urlencode(_data).encode("utf-8")
+    _data = json.dumps(_data).encode("utf-8")
     _req = urllib.request.Request(_url, _data, _header, "POST")
     try:
         with urllib.request.urlopen(_req) as _res:
@@ -57,7 +64,7 @@ def sendRequest(_url, _data, _header):
         print("HTTPError: " + str(_err.code))
         print(_err)
     except urllib.error.URLError as _err:
-        print("HTTPError: " + _err.reason)
+        print("URLError: " + _err.reason)
         print(_err)
 
 #S3から読み込み
