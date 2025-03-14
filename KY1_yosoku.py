@@ -1,4 +1,4 @@
-# 買い物予報 Ver 1.05  2024/03/07
+# 買い物予報 Ver 1.05  2024/03/14
 #
 # KY1_yosoku.py
 #   入庫予定日を算出し、更新データを更新する。
@@ -7,7 +7,9 @@
 import os
 import datetime
 import pandas as pd
+from dotenv import load_dotenv
 
+load_dotenv()
 _env = os.environ
 
 def main():
